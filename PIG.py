@@ -1,15 +1,22 @@
-MAX_FRAMES=64*10
+# PIG / Python Version
+from random import randint
+from math import pi, sin, cos
 
-FRAME_SPEED=1
+RUN={
+    'MAX_FRAMES' : 64*10,
+    'FRAME_SPEED' : 1, #Useless, unless with TKinter
+    'COUNT' : 0,
+    'RUNNING' : 1,
+}
 
-MEMORY=50
+SET_MEMORY = 50
 
 SET={
     'a' : {
         'NUMBER' : 5,
         'RADIUS' : 10,
         'VELOCITY' : 2,
-        'MEMORY' : MEMORY,
+        'MEMORY' : SET_MEMORY,
         'TOGGLE' : 80/100,
     },
 
@@ -23,7 +30,7 @@ SET={
         'NUMBER' : 0,
         'RADIUS' : 10,
         'VELOCITY' : 2,
-        'MEMORY' : MEMORY,
+        'MEMORY' : SET_MEMORY,
         'TOGGLE' : 80/100,
     },
 
@@ -33,198 +40,165 @@ SET={
         'VELOCITY' : 2,
     },
 
-};
+    'SIM' : {
+        'SIZE_X' : 400,
+        'SIZE_Y' : 400,
+    },
+}
 
+PARTICLES=[]
 
+def dist(x1,x2,y1,y2):
+    dx = x2-x1
+    dy = y2-y1
 
-# ------------------------------------------------------------------------------
+    d = (dx**2 + dy**2)**0.5
 
+    return d
 
-var PARTICLES=[];
+def DIRECTION(x1,y1,x2,y2):
 
-var DIRECTION=function(x1,y1,x2,y2){
-    var d=dist(x1,y1,x2,y2);
-    var dx=(x2-x1)/d;
-    var dy=(y2-y1)/d;
-    return [dx,dy];
-};
+    d=dist(x1,y1,x2,y2)
 
-var getAC=function(A,B){
-    if(A.type === 'a' || A.type === 'c'){
-        if(B.type === 'a' || B.type === 'c'){
+    dx=(x2-x1)/d
+    dy=(y2-y1)/d
+
+    return [dx,dy]
+
+def getAC(A,B):
+    if A.type == 'a' or A.type == 'c':
+        if B.type == 'a' or B.type == 'c':
             return 0;
-        }else{
+        else:
             return [A,B];
-        }
-    }else{
-        if(B.type === 'a' || B.type === 'c'){
+    else:
+        if B.type == 'a' or B.type == 'c':
             return [B,A];
-        }else{
+        else:
             return 0;
-        }
-    }
-};
 
-var particle=function(type){
-    //COMPLETE
+class particle(type):
 
-    this.x=random(0,400);
-    this.y=random(0,400);
+    def __init__(this, type):
+        this.x = randint(0,SET['SIM']['SIZE_X'])
+        this.y = randint(0,SET['SIM']['SIZE_Y'])
 
-    this.type=type;
+        this.type = type
 
-    var a=random(0,360);
-    this.direction=[sin(a),cos(a)];
+        a = randint(0,1000)*pi/1000
+        this.direction = [sin(a),cos(a)]
 
-    this.memory=[];
-    this.pointer=0;
+        this.memory = []
+        this.pointer = 0
 
-    if(this.type === 'a' || this.type === 'c'){
-        var memoryN=SET[this.type].MEMORY;
-        if(this.type === 'a'){
-            for(var i=0; i<memoryN; i++){
-                this.memory.push('d');
+        if this.type == 'a' or this.type == 'c':
+            memoryN = SET[this.type]['MEMORY']
+
+            ch = ''
+
+            if this.type == 'a':
+                ch = 'd'
+            else:
+                ch = 'c'
+
+            for i in range(memoryN):
+                this.memory.append(ch)
+
+    def show(this):
+        pass
+        #With TKinter
+
+    def move(this):
+
+        this.moveon()
+        this.edge()
+
+    def moveon(this):
+
+        this.x += this.direction[0]*SET [this.type] ['VELOCITY']
+        this.y += this.direction[1]*SET [this.type] ['VELOCITY']
+
+    def edge(this):
+
+        x = SET ['SIM'] ['SIZE_X']
+        y = SET ['SIM'] ['SIZE_Y']
+
+        if this.x > x:
+            this.x -= x
+        elif this.x < 0:
+            this.x += x
+
+        if this.y > y:
+            this.y -= y
+        elif this.y < 0:
+            this.y += y
+
+    def toggle(this):
+        if this.type in ['a','c']:
+            this.toggleAC()
+        elif this.type in ['b','d']:
+            this.toggleBD()
+
+    def toggleAC(this):
+        memory=this.readMemory()
+        if this.type == 'a' and memory['b'] >= SET ['a'] ['MEMORY'] * SET ['a'] ['TOGGLE']:
+            this.type = 'c'
+        elif this.type == 'c' and memory['d'] >= SET ['c'] ['MEMORY'] * SET ['c'] ['TOGGLE']:
+            this.type = 'a'
+
+    def toggleBD(this):
+        if this.type == 'b':
+            this.type = 'd'
+        elif this.type == 'd':
+            this.type = 'b'
+
+    def readMemory(this):
+        ret={
+            'b':0,
+            'd':0,
             }
-        }else if(this.type === 'c'){
-            for(var i=0; i<memoryN; i++){
-                this.memory.push('b');
-            }
-        }
-    }
-};
 
-particle.prototype.show=function(){
-    //COMPLETE
+        for i in this.memory:
+            ret[i]+=1
 
-    noStroke();
+        return ret
 
-    if(this.type === 'a'){
+    def writeMemory(this,INPUT):
+        this.memory[this.pointer] = INPUT
 
-        fill(255, 108, 92);
+        this.pointer+=1
+        this.pointer%=this.memory.length
 
-    }else if(this.type === 'b'){
+    def runself(this):
+        this.move()
 
-        fill(155, 255, 115);
+    def detectDist(this,that):
 
-    }else if(this.type === 'c'){
+        d = dist(this.x,this.y,that.x,that.y);
 
-        fill(232, 205, 86);
+        if d < SET[this.type]['RADIUS'] + SET[that.type]['RADIUS']:
+            this.collide(that)
 
-    }else if(this.type === 'd'){
+    def collide(this,that):
 
-        fill(83, 219, 208);
+        R=getAC(this,that)
 
-    }
+        if R:
+            AC=R[0]
+            BD=R[1]
 
-    ellipse(this.x,this.y,SET[this.type].RADIUS*2,SET[this.type].RADIUS*2);
-};
+            AC.writeMemory(BD.type)
 
-particle.prototype.move=function(){
-    //COMPLETE
+            if (AC.type == 'a' and BD.type == 'd') or (AC.type == 'a' and BD.type == 'd'):
 
-    this.moveon();
-    this.edge();
-};
 
-particle.prototype.moveon=function(){
-    //COMPLETE
 
-    this.x+=this.direction[0]*SET[this.type].VELOCITY;
-    this.y+=this.direction[1]*SET[this.type].VELOCITY;
-};
+# DIVISION LINE / PYTHON / JS
 
-particle.prototype.edge=function(){
-    //COMPLETE
 
-    if(this.x>400){
-        this.x-=400;
-    }else if(this.x<0){
-        this.x+=400;
-    }
 
-    if(this.y>400){
-        this.y-=400;
-    }else if(this.y<0){
-        this.y+=400;
-    }
 
-};
 
-particle.prototype.toggle=function(){
-    //COMPLETE
-
-    if(this.type === 'a' || this.type === 'c'){
-        this.toggleAC();
-    }else if(this.type === 'b' || this.type === 'd'){
-        this.toggleBD();
-    }
-};
-
-particle.prototype.toggleAC=function(){
-    //COMPLETE
-
-    var memory=this.readMemory();
-    if(this.type === 'a' && memory.b >= SET.a.MEMORY*SET.a.TOGGLE){
-        this.type = 'c';
-    }else if(this.type === 'c' && memory.d >= SET.c.MEMORY*SET.c.TOGGLE){
-        this.type = 'a';
-    }
-};
-
-particle.prototype.readMemory=function(){
-
-    //COMPLETE
-
-    var ret={
-        b : 0,
-        d : 0,
-    };
-
-    for(var i=0;i<this.memory.length;i++){
-        ret[this.memory[i]]+=1;
-    }
-
-    return ret;
-};
-
-particle.prototype.writeMemory=function(input){
-    //COMPLETE
-    this.memory[this.pointer] = input;
-
-    this.pointer++;
-
-    this.pointer %= this.memory.length;
-};
-
-particle.prototype.toggleBD=function(){
-    //COMPLETE
-
-    if(this.type === 'b'){
-        this.type = 'd';
-    }else if(this.type === 'd'){
-        this.type = 'b';
-    }
-
-};
-
-particle.prototype.runself=function(){
-
-    //this.show();
-    this.move();
-
-};
-
-particle.prototype.detectDist=function(that){
-
-    //COMPLETE
-
-    var d = dist(this.x,this.y,that.x,that.y);
-
-    if(d < SET[this.type].RADIUS + SET[that.type].RADIUS){
-        this.collide(that);
-    }
-
-};
 
 particle.prototype.collide=function(that){
     //COMPLETE
@@ -280,10 +254,6 @@ particle.prototype.run=function(){
     }
 };
 
-
-var COUNT = 0;
-
-var RUNNING = 1;
 
 
 var INIT=function(){
@@ -347,4 +317,33 @@ draw= function() {
         PROGBAR();
     }
 
+};
+
+# Special Difficulty
+
+#Requires TKinter
+particle.prototype.show=function(){
+    //COMPLETE
+
+    noStroke();
+
+    if(this.type === 'a'){
+
+        fill(255, 108, 92);
+
+    }else if(this.type === 'b'){
+
+        fill(155, 255, 115);
+
+    }else if(this.type === 'c'){
+
+        fill(232, 205, 86);
+
+    }else if(this.type === 'd'){
+
+        fill(83, 219, 208);
+
+    }
+
+    ellipse(this.x,this.y,SET[this.type].RADIUS*2,SET[this.type].RADIUS*2);
 };
