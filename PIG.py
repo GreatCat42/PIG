@@ -176,7 +176,7 @@ class particle(type):
 
         d = dist(this.x,this.y,that.x,that.y);
 
-        if d < SET[this.type]['RADIUS'] + SET[that.type]['RADIUS']:
+        if d < SET[this.type]['RADIUS'] + SET[that.type]['RADIUS'] and not(d == 0):
             this.collide(that)
 
     def collide(this,that):
@@ -190,69 +190,36 @@ class particle(type):
             AC.writeMemory(BD.type)
 
             if (AC.type == 'a' and BD.type == 'd') or (AC.type == 'a' and BD.type == 'd'):
+                BD.toggle()
+
+            AC.toggle()
+
+        this.COLLIDE(that)
+
+    def COLLIDE(this,that):
+        direction = DIRECTION(this.x,this.y,that.x,that.y)
+        avgPos = [(this.x+that.x)/2 , (this.y+that.y)/2]
+
+        this.direction = [-direction[0],-direction[1]]
+        this.moveon()
+
+        that.direction = direction
+        that.moveon()
+
+    def runw(this,that):
+        this.detectDist(that)
+
+    def run():
+        this.runself()
+
+        for particle in PARTICLES:
+            this.runw(particle)
 
 
+        
 
 # DIVISION LINE / PYTHON / JS
 
-
-
-
-
-
-particle.prototype.collide=function(that){
-    //COMPLETE
-
-    var R=getAC(this,that);
-    if(R){
-        var AC=R[0];
-        var BD=R[1];
-
-        AC.writeMemory(BD.type);
-
-        if((AC.type === 'a' && BD.type === 'd')||(AC.type === 'c' && BD.type === 'b')){
-            BD.toggle();
-        }
-
-        AC.toggle();
-
-    }
-    this.COLLIDE(that);
-};
-
-particle.prototype.COLLIDE=function(that){
-    //COMPLETE
-    var direction = DIRECTION(this.x,this.y,that.x,that.y);
-
-    var avgPos = [(this.x+that.x)/2 , (this.y+that.y)/2];
-
-    this.x = avgPos[0]-direction[0]*(SET[this.type].RADIUS+0.02);
-    this.y = avgPos[1]-direction[1]*(SET[this.type].RADIUS+0.02);
-    this.direction = [-direction[0],-direction[1]];
-
-    that.x = avgPos[0]+direction[0]*(SET[that.type].RADIUS+0.02);
-    that.y = avgPos[1]+direction[1]*(SET[that.type].RADIUS+0.02);
-    that.direction = direction;
-
-};
-
-particle.prototype.runw=function(that){
-    //COMPLETE
-
-    if(dist(this.x,this.y,that.x,that.y)>0){
-        this.detectDist(that);
-    }
-
-};
-
-particle.prototype.run=function(){
-    //COMPLETE
-    this.runself();
-
-    for(var i=0;i<PARTICLES.length;i++){
-        this.runw(PARTICLES[i]);
-    }
-};
 
 
 
