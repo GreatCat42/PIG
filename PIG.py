@@ -9,6 +9,7 @@ RUN={
     'RUNNING' : 1,
 }
 
+
 SET_MEMORY = 50
 
 SET={
@@ -212,39 +213,32 @@ class particle(type):
     def run():
         this.runself()
 
-        for particle in PARTICLES:
-            this.runw(particle)
+        for Particle in PARTICLES:
+            this.runw(Particle)
+
+def INIT():
+    types=['a','b','c','d']
+    for t in types:
+        num=SET[t]['NUMBER']
+        for i in range(num):
+            PARTICLES.append(particle)
+
+def RUN_FRAME():
+    for Particle in PARTICLES:
+        Particle.run()
+        RUN['COUNT']+=1
+
+def CHECK_COMPLETE():
+    if RUN['COUNT'] >= RUN['MAX_FRAMES']:
+        RUN['RUNNING'] = 0
 
 
-        
 
 # DIVISION LINE / PYTHON / JS
 
+#All of the below are SDs
 
-
-
-var INIT=function(){
-    var types=['a','b','c','d'];
-
-    for(var i=0;i<types.length;i++){
-        var type=types[i];
-
-        for(var j=0;j<SET[type].NUMBER;j++){
-            PARTICLES.push(new particle(type));
-        }
-
-    }
-};
-
-var RUN_FRAME=function(){
-
-    for(var i=0;i<PARTICLES.length;i++){
-        PARTICLES[i].run();
-    }
-
-    COUNT++;
-
-};
+#They require the TKinter Module
 
 var SHOW=function(){
     background(255, 250, 184);
@@ -265,11 +259,6 @@ var PROGBAR=function(){
     rect(50,330,300*progRatio,25);
 };
 
-var CHECK_COMPLETE=function(){
-    if(COUNT>=MAX_FRAMES){
-        RUNNING=0;
-    }
-};
 
 INIT();
 
@@ -286,9 +275,6 @@ draw= function() {
 
 };
 
-# Special Difficulty
-
-#Requires TKinter
 particle.prototype.show=function(){
     //COMPLETE
 
