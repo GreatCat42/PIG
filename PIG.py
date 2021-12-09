@@ -78,7 +78,7 @@ def getAC(A,B):
         else:
             return 0;
 
-class particle(type):
+class particle:
 
     def __init__(this, type):
         this.x = randint(0,SET['SIM']['SIZE_X'])
