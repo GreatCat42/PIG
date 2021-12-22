@@ -1,6 +1,7 @@
 # PIG / Python Version
 from random import randint
 from math import pi, sin, cos
+from Tk2050 import *
 
 RUN={
     'MAX_FRAMES' : 64*10,
@@ -221,7 +222,7 @@ def INIT():
     for t in types:
         num=SET[t]['NUMBER']
         for i in range(num):
-            PARTICLES.append(particle)
+            PARTICLES.append(particle())
 
 def RUN_FRAME():
     for Particle in PARTICLES:
@@ -232,7 +233,19 @@ def CHECK_COMPLETE():
     if RUN['COUNT'] >= RUN['MAX_FRAMES']:
         RUN['RUNNING'] = 0
 
+def SHOW():
+    clear()
+    fill('#ffddaaff')
+    stroke('#00000000')
 
+    vertex(0,0)
+    vertex(0,400)
+    vertex(400,400)
+    vertex(400,0)
+    endshape()
+
+    for Particle in PARTICLES:
+        Particle.show()
 
 # DIVISION LINE / PYTHON / JS
 
@@ -240,12 +253,6 @@ def CHECK_COMPLETE():
 
 #They require the TKinter Module
 
-var SHOW=function(){
-    background(255, 250, 184);
-    for(var i=0;i<PARTICLES.length;i++){
-        PARTICLES[i].show();
-    }
-};
 
 var PROGBAR=function(){
 
