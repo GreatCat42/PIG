@@ -106,9 +106,26 @@ class particle:
             for i in range(memoryN):
                 this.memory.append(ch)
 
-    def show(this):
-        pass
-        #With TKinter
+    def show():
+        stroke('#00000000')
+
+        if this.type == 'a':
+            fill('#ff6c5cff')
+        if this.type == 'b':
+            fill('#9bff9bff')
+        if this.type == 'c':
+            fill('#e8cd56ff')
+        if this.type == 'd':
+            fill('#53dbd0ff')
+
+        rad = SET[this.type]['RADIUS'] * (2**(1/2))
+
+        vertex(this.x - rad, this.y - rad)
+        vertex(this.x - rad, this.y + rad)
+        vertex(this.x + rad, this.y + rad)
+        vertex(this.x + rad, this.y - rad)
+
+        endshape()
 
     def move(this):
 
@@ -247,63 +264,37 @@ def SHOW():
     for Particle in PARTICLES:
         Particle.show()
 
-# DIVISION LINE / PYTHON / JS
 
-#All of the below are SDs
+def PROGBAR():
+    stroke('#00000000')
+    fill('#ffffff60')
 
-#They require the TKinter Module
+    vertex(50,300)
+    vertex(50,325)
+    vertex(350,325)
+    vertex(350,300)
+    endshape()
 
+    progRatio = RUN['COUNT'] / RUN['MAX_FRAMES']
 
-var PROGBAR=function(){
+    fill('#ffffffff')
+    vertex(50,300)
+    vertex(50,325)
+    vertex(50 + 300*progRatio, 325)
+    vertex(50 + 300*progRatio, 300)
+    endshape()
 
-    noStroke();
+INIT()
 
-    fill(255,255,255,100);
-    rect(50,330,300,25);
+def draw():
+    if RUN['RUNNING']:
+        for i in range(FRAME_SPEED):
+            RUN_FRAME()
+            CHECK_COMPLETE()
 
-    var progRatio=COUNT/MAX_FRAMES;
-    fill(255,255,255,255);
-    rect(50,330,300*progRatio,25);
-};
+        SHOW()
+        PROGBAR()
 
+from Tk2050 import loop
 
-INIT();
-
-draw= function() {
-    if(RUNNING){
-        for(var i=0;i<FRAME_SPEED;i++){
-            RUN_FRAME();
-            CHECK_COMPLETE();
-        }
-
-        SHOW();
-        PROGBAR();
-    }
-
-};
-
-particle.prototype.show=function(){
-    //COMPLETE
-
-    noStroke();
-
-    if(this.type === 'a'){
-
-        fill(255, 108, 92);
-
-    }else if(this.type === 'b'){
-
-        fill(155, 255, 115);
-
-    }else if(this.type === 'c'){
-
-        fill(232, 205, 86);
-
-    }else if(this.type === 'd'){
-
-        fill(83, 219, 208);
-
-    }
-
-    ellipse(this.x,this.y,SET[this.type].RADIUS*2,SET[this.type].RADIUS*2);
-};
+loop()
