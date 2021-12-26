@@ -3,9 +3,10 @@ from random import randint
 from math import pi, sin, cos
 from Tk2050 import *
 
+
 RUN={
-    'MAX_FRAMES' : 64*10,
-    'FRAME_SPEED' : 1, #Useless, unless with TKinter
+    'MAX_FRAMES' : 64*64*64*10,
+    'FRAME_SPEED' : 4,
     'COUNT' : 0,
     'RUNNING' : 1,
 }
@@ -50,7 +51,7 @@ SET={
 
 PARTICLES=[]
 
-def dist(x1,x2,y1,y2):
+def dist(x1,y1,x2,y2):
     dx = x2-x1
     dy = y2-y1
 
@@ -106,26 +107,21 @@ class particle:
             for i in range(memoryN):
                 this.memory.append(ch)
 
-    def show():
-        stroke('#00000000')
+    def show(this):
+        stroke('')
 
         if this.type == 'a':
-            fill('#ff6c5cff')
+            fill('#ff6c5c')
         if this.type == 'b':
-            fill('#9bff9bff')
+            fill('#9bff9b')
         if this.type == 'c':
-            fill('#e8cd56ff')
+            fill('#e8cd56')
         if this.type == 'd':
-            fill('#53dbd0ff')
+            fill('#53dbd0')
 
-        rad = SET[this.type]['RADIUS'] * (2**(1/2))
+        rad = SET[this.type]['RADIUS']
 
-        vertex(this.x - rad, this.y - rad)
-        vertex(this.x - rad, this.y + rad)
-        vertex(this.x + rad, this.y + rad)
-        vertex(this.x + rad, this.y - rad)
-
-        endshape()
+        ellipse(this.x,this.y,rad,rad)
 
     def move(this):
 
@@ -186,7 +182,7 @@ class particle:
         this.memory[this.pointer] = INPUT
 
         this.pointer+=1
-        this.pointer%=this.memory.length
+        this.pointer%=len(this.memory)
 
     def runself(this):
         this.move()
@@ -208,7 +204,7 @@ class particle:
 
             AC.writeMemory(BD.type)
 
-            if (AC.type == 'a' and BD.type == 'd') or (AC.type == 'a' and BD.type == 'd'):
+            if (AC.type == 'a' and BD.type == 'd') or (AC.type == 'c' and BD.type == 'b'):
                 BD.toggle()
 
             AC.toggle()
@@ -228,7 +224,7 @@ class particle:
     def runw(this,that):
         this.detectDist(that)
 
-    def run():
+    def run(this):
         this.runself()
 
         for Particle in PARTICLES:
@@ -239,7 +235,7 @@ def INIT():
     for t in types:
         num=SET[t]['NUMBER']
         for i in range(num):
-            PARTICLES.append(particle())
+            PARTICLES.append(particle(t))
 
 def RUN_FRAME():
     for Particle in PARTICLES:
@@ -252,22 +248,18 @@ def CHECK_COMPLETE():
 
 def SHOW():
     clear()
-    fill('#ffddaaff')
-    stroke('#00000000')
+    fill('#ffddaa')
+    stroke('#000000')
 
-    vertex(0,0)
-    vertex(0,400)
-    vertex(400,400)
-    vertex(400,0)
-    endshape()
+    rect(0,0,400,400)
 
     for Particle in PARTICLES:
         Particle.show()
 
 
 def PROGBAR():
-    stroke('#00000000')
-    fill('#ffffff60')
+    stroke('')
+    fill('#aaaaaa')
 
     vertex(50,300)
     vertex(50,325)
@@ -277,7 +269,7 @@ def PROGBAR():
 
     progRatio = RUN['COUNT'] / RUN['MAX_FRAMES']
 
-    fill('#ffffffff')
+    fill('#ffffff')
     vertex(50,300)
     vertex(50,325)
     vertex(50 + 300*progRatio, 325)
@@ -288,7 +280,7 @@ INIT()
 
 def draw():
     if RUN['RUNNING']:
-        for i in range(FRAME_SPEED):
+        for i in range(RUN['FRAME_SPEED']):
             RUN_FRAME()
             CHECK_COMPLETE()
 

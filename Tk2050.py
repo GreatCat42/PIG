@@ -1,5 +1,6 @@
 from tkinter import *
 from time import sleep
+from math import sin, cos, pi
 
 class MAIN:
     def __init__(this):
@@ -78,6 +79,72 @@ def vertex(x,y):
 
 def endshape():
     CANVAS.endshape()
+
+def rect(x,y,x_len,y_len,align='TOP LEFT'):
+
+    align=align.split(' ')
+    
+    p0=[None,None]
+    p1=[None,None]
+    p2=[None,None]
+    p3=[None,None]
+    vs=[p0,p1,p2,p3]
+
+    # Algorithm will be improved in 2075
+    
+    if align[0] == 'TOP':
+        p0[1] = y
+        p1[1] = y
+        p2[1] = y+y_len
+        p3[1] = y+y_len
+
+    if align[0] == 'CENTER':
+        p0[1] = y-y_len/2
+        p1[1] = y-y_len/2
+        p2[1] = y+y_len/2
+        p3[1] = y+y_len/2
+
+    if align[0] == 'BOTTOM':
+        p0[1] = y-y_len
+        p1[1] = y-y_len
+        p2[1] = y
+        p3[1] = y
+
+    # The X Coordinates
+    
+    if align[1] == 'LEFT':
+        p0[0] = x+x_len
+        p1[0] = x
+        p2[0] = x
+        p3[0] = x+x_len
+
+    if align[1] == 'CENTER':
+        p0[0] = x+x_len/2
+        p1[0] = x-x_len/2
+        p2[0] = x-x_len/2
+        p3[0] = x+x_len/2
+
+    if align[1] == 'RIGHT':
+        p0[0] = x
+        p1[0] = x-x_len
+        p2[0] = x-x_len
+        p3[0] = x
+
+    for v in vs:
+        vertex(v[0],v[1])
+
+    endshape()
+        
+def ellipse(x,y,x_rad,y_rad):
+    divs=4*(x_rad+y_rad)
+    a=2*pi/divs
+    alpha = 0
+    while alpha < 2*pi:
+        vertex(cos(alpha)*x_rad+x,-1*sin(alpha)*y_rad+y)
+        alpha+=a
+    endshape()
+    
+    
 
 def raiser():
     raise Exception('Import loop again, after defining the draw function!')
